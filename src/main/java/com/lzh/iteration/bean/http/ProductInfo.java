@@ -1,5 +1,7 @@
 package com.lzh.iteration.bean.http;
 
+import java.util.List;
+
 public class ProductInfo extends HttpRequestCode{
 
 	private int projectId;
@@ -11,5 +13,8 @@ public class ProductInfo extends HttpRequestCode{
 	public void setProjectId(int projectId) {
 		this.projectId = projectId;
 	}
+
+
+
 
 }

@@ -14,7 +14,7 @@ import com.lzh.iteration.bean.http.ProductInfo;
 
 
 @Service
-public class UserAction {
+public class FileAction {
 
 	@Resource
 	private   SqlDataManager sqlDataManager;
@@ -57,6 +57,13 @@ public class UserAction {
 		System.out.println("username:"+username);
 		return sqlDataManager.search("owner",username,Project.class);
 	}
+	
+	public List<Product> getProductByProjectId(int projectId){
+		return sqlDataManager.search("projectId",projectId,Product.class);
+	}
+	public List<Product> getProductByProjectId(Collection<Integer> projectIds){
+		return sqlDataManager.searchSqlList("projectId",projectIds,Product.class);
+	}
 	public List<Product> getProduct(int ProductId){
 		return sqlDataManager.search("id",ProductId,Product.class);
 	}
@@ -64,8 +71,17 @@ public class UserAction {
 		return sqlDataManager.searchSqlList("id",ProductId,Product.class);
 	}
 	
+	public void saveOrUpdate(Object obj){
+		sqlDataManager.saveOrUpdate(obj);
+	}
 	public void save(Object obj){
 		sqlDataManager.save(obj);
+	}
+	public void merge(Object obj){
+		sqlDataManager.merge(obj);
+	}
+	public void update(Object obj){
+		sqlDataManager.update(obj);
 	}
 	public void remove(Object obj){
 		sqlDataManager.remove(obj);

@@ -23,7 +23,7 @@ import com.lzh.iteration.bean.http.FileInfo;
 import com.lzh.iteration.bean.http.FileList;
 import com.lzh.iteration.bean.http.HttpRequestCode;
 import com.lzh.iteration.bean.http.ProductInfo;
-import com.lzh.iteration.service.UserAction;
+import com.lzh.iteration.service.FileAction;
 import com.lzh.iteration.utils.ApkUtils;
 import com.lzh.iteration.utils.ConfigCode;
 
@@ -32,7 +32,7 @@ import com.lzh.iteration.utils.ConfigCode;
 public class UserController {
 
 	@Resource
-	private UserAction userAction;
+	private FileAction userAction;
 
 	@RequestMapping(value = "/username",produces="text/plain;charset=UTF-8")
 	@ResponseBody
@@ -57,21 +57,4 @@ public class UserController {
 		return "0";
 	}
 	
-	@RequestMapping(value = "/Projectinfo",produces="text/plain;charset=UTF-8")
-	@ResponseBody
-	public String Projectinfo(HttpServletRequest request,HttpServletResponse response){
-		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
-		HttpRequestCode httpRequestCode = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),HttpRequestCode.class);
-		if(httpRequestCode != null && userAction.checkPassword(httpRequestCode.getUserName(), httpRequestCode.getPassWord())){
-			List<Project> pList = userAction.getProject(httpRequestCode.getUserName());
-			if(pList != null){
-				System.out.println( JSON.toJSONString(pList));
-				return JSON.toJSONString(pList);
-			}
-		}
-		return "0";
-	}
-	
-
-
 }

@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+import org.hibernate.sql.Update;
 
 @Entity
 @Table(name="product")
@@ -54,6 +55,19 @@ public class Product {
 		this.uploadtime = uploadtime;
 	}
 	public Product(){}
+	
+	public Product update(String productname,int projectId,String condition,String authority,String packname,Date uploadtime,String packagesize,String versionname,String versioncode){
+		this.productname = productname;
+		this.condition = condition;
+		this.authority = authority;
+		this.packname = packname;
+		this.packagesize = packagesize;
+		this.versionname = versionname;
+		this.versioncode = versioncode;
+		this.projectId = projectId;
+		this.uploadtime = uploadtime;
+		return this;
+	}
 	
 	public int getId() {
 		return id;

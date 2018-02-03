@@ -32,6 +32,17 @@ public class SqlDataManager {
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	
+	public boolean saveOrUpdate(Object obj){
+		try {
+			Session().saveOrUpdate(obj);
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return false;
+		}
+	}
 
 	public boolean save(Object obj){
 		try {
@@ -45,6 +56,26 @@ public class SqlDataManager {
 	}
 
 
+	public boolean merge(Object object){
+		try {
+			Session().merge(object);
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return false;
+		}
+	}
+	public boolean update(Object object){
+		try {
+			Session().update(object);
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return false;
+		}
+	}
 	public boolean update(String sql){
 		try {
 			Session().createQuery(sql).executeUpdate();

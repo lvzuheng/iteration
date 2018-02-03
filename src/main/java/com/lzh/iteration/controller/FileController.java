@@ -32,11 +32,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.lzh.iteration.bean.code.Product;
+import com.lzh.iteration.bean.code.Project;
 import com.lzh.iteration.bean.http.FileDelete;
 import com.lzh.iteration.bean.http.FileInfo;
 import com.lzh.iteration.bean.http.FileList;
+import com.lzh.iteration.bean.http.HttpRequestCode;
 import com.lzh.iteration.bean.http.ProductInfo;
-import com.lzh.iteration.service.UserAction;
+import com.lzh.iteration.service.FileAction;
 import com.lzh.iteration.utils.ApkUtils;
 import com.lzh.iteration.utils.ConfigCode;
 import com.lzh.iteration.utils.Configure;
@@ -50,7 +52,7 @@ public class FileController {
 	private String address = Configure.getConfig().getApkAddress();
 
 	@Resource
-	private UserAction userAction;
+	private FileAction fileAction;
 
 	@RequestMapping(value = "/list",produces="text/plain;charset=UTF-8")
 	@ResponseBody
@@ -86,14 +88,29 @@ public class FileController {
 		return JSONObject.toJSON(fileLists).toString();
 	}
 
+	@RequestMapping(value = "/Projectinfo",produces="text/plain;charset=UTF-8")
+	@ResponseBody
+	public String Projectinfo(HttpServletRequest request,HttpServletResponse response){
+		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
+		HttpRequestCode httpRequestCode = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),HttpRequestCode.class);
+		if(httpRequestCode != null && fileAction.checkPassword(httpRequestCode.getUserName(), httpRequestCode.getPassWord())){
+			List<Project> pList = fileAction.getProject(httpRequestCode.getUserName());
+			if(pList != null){
+				System.out.println( JSON.toJSONString(pList));
+				return JSON.toJSONString(pList);
+			}
+		}
+		return "0";
+	}
+
 	@RequestMapping(value = "/Productinfo",produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String Productinfo(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		System.out.println(request.getParameter(ConfigCode.REQUEST));
 		ProductInfo ProductInfo = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProductInfo.class);
-		if(ProductInfo != null && userAction.checkPassword(ProductInfo.getUserName(), ProductInfo.getPassWord())){
-			List<Product> pList = userAction.getProduct(ProductInfo.getProjectId());
+		if(ProductInfo != null && fileAction.checkPassword(ProductInfo.getUserName(), ProductInfo.getPassWord())){
+			List<Product> pList = fileAction.getProductByProjectId(ProductInfo.getProjectId());
 			if(pList != null){
 				System.out.println(ProductInfo.getProjectId() +","+JSON.toJSONString(pList));
 				return JSON.toJSONString(pList);
@@ -116,38 +133,56 @@ public class FileController {
 		if(check(userName, passWord)){
 			System.out.println("fd：上传中");
 			if(productName.substring(productName.lastIndexOf("."), productName.length()).equals(".apk")){
+				ApkUtils apkUtils  = null;
 				try {
 					System.out.println("fd：上传中。。。。。"+projcetId);
 					MultipartFile multipartFile = multipartHttpServletRequest.getFile(ConfigCode.UPLOADDATA);
 					System.out.println("fd："+multipartFile.getBytes().length);
 					if(String.valueOf(multipartFile.getBytes().length).equals(size)){
-						File file = new File(address+projcetId+productName);
+						File file = new File(address+"/"+projcetId+"/"+productName);
+						System.out.println("file:"+","+file.getParentFile().exists());
 						if(!file.getParentFile().exists()){
-							file.mkdir();
+							file.getParentFile().mkdir();
 						}
 						if(file.exists()){
 							file.delete();
 						}
 						System.out.println("address:"+address+"/"+projcetId+"/"+multipartHttpServletRequest.getParameter(ConfigCode.UPLOADFILENAME));
 						StreamWriter.PrintStreamWrite(multipartFile.getBytes(),file,true);
-
-						ApkUtils apkUtils = ApkUtils.ApkParse(file.getAbsolutePath());
+						apkUtils = ApkUtils.ApkParse(file.getAbsolutePath());
 						if(apkUtils != null){
+							List<Product> products = fileAction.getProductByProjectId(Integer.valueOf(projcetId));
+							if(products!=null && products.size()>0){
+								for(Product p:products){
+									System.err.println(p.getProductname()+","+productName);
+									if(p.getProductname().equals(productName)){
+										p.setPackname(apkUtils.parseAttrbute("package").get(0));
+										p.setPackagesize(size);
+										p.setProjectId(Integer.valueOf(projcetId));
+										p.setVersionname(apkUtils.parseAttrbute("versionName").get(0));
+										p.setVersioncode(apkUtils.parseAttrbute("versionCode").get(0));
+										p.setUploadtime(new Date());
+										fileAction.update(p);
+										return "1";
+									}
+								}
+							}
 							Product product = new Product(productName,Integer.valueOf(projcetId),null,null,
 									apkUtils.parseAttrbute("package").get(0),new Date(),size,apkUtils.parseAttrbute("versionName").get(0),apkUtils.parseAttrbute("versionCode").get(0));
-							userAction.save(product);
+							fileAction.save(product);
 							return "1";
 						}
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					//					System.out.println("error:IOException");
+					System.out.println("error:IOException");
 					return "0";
+				}finally {
+					apkUtils.release();
 				}
 			}
 		}
-		System.out.println("error:IDException");
 		return "0";
 	}
 
@@ -155,13 +190,13 @@ public class FileController {
 	@ResponseBody
 	public String removeApk(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
-		
+
 		FileDelete fileDelete = JSONObject.parseObject(request.getParameter("request"), FileDelete.class);
 		System.err.println("delete:"+request.getParameter("request"));
-		boolean check = userAction.checkPassword(fileDelete.getUserName(), fileDelete.getPassWord());
+		boolean check = fileAction.checkPassword(fileDelete.getUserName(), fileDelete.getPassWord());
 		File[] files ;
 		if(check){
-			List<Product> products = userAction.getProduct(fileDelete.getProductId());
+			List<Product> products = fileAction.getProduct(fileDelete.getProductId());
 			System.err.println("delete:"+products.size());
 			for(Product product :products){
 				files = FileUtils.findFiles(address+"/"+product.getProjectId());
@@ -172,12 +207,12 @@ public class FileController {
 						if(file.getName().equals(product.getProductname())){
 							System.err.println("delete:"+file.getName());
 							file.delete();
-							userAction.remove(product);
+							fileAction.remove(product);
 						}
 					}
 				}
 			}
-			
+
 			return "1";
 		}
 		return "0";
@@ -256,7 +291,7 @@ public class FileController {
 	//	
 
 	private boolean check(String userName,String passWord){
-		return userAction.checkPassword(userName, passWord);
+		return fileAction.checkPassword(userName, passWord);
 	}
 
 
