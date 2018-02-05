@@ -22,7 +22,14 @@ public class Project {
 	@Column(name="owner")
 	private String owner;
 	@Column(name="authority")
-	private String authority;
+	private int authority;
+	
+	public Project(){}
+	public Project(String projectname,String owner,int authority){
+		this.projectname = projectname;
+		this.owner = owner;
+		this.setAuthority(authority);
+	}
 	public int getId() {
 		return id;
 	}
@@ -41,10 +48,10 @@ public class Project {
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
-	public String getAuthority() {
+	public int getAuthority() {
 		return authority;
 	}
-	public void setAuthority(String authority) {
+	public void setAuthority(int authority) {
 		this.authority = authority;
 	}
 }

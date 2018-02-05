@@ -29,7 +29,7 @@ public class Product {
 	@Column(name="condition_key")
 	private String condition;
 	@Column(name="product_authority")
-	private String authority;
+	private int authority;
 	@Column(name="packname")
 	private String packname;
 	@Column(name="uploadtime")
@@ -43,10 +43,10 @@ public class Product {
 	@Column(name="projectId")
 	private int projectId;
 	
-	public Product(String productname,int projectId,String condition,String authority,String packname,Date uploadtime,String packagesize,String versionname,String versioncode){
+	public Product(String productname,int projectId,String condition,int authority,String packname,Date uploadtime,String packagesize,String versionname,String versioncode){
 		this.productname = productname;
 		this.condition = condition;
-		this.authority = authority;
+		this.setAuthority(authority);
 		this.packname = packname;
 		this.packagesize = packagesize;
 		this.versionname = versionname;
@@ -56,18 +56,6 @@ public class Product {
 	}
 	public Product(){}
 	
-	public Product update(String productname,int projectId,String condition,String authority,String packname,Date uploadtime,String packagesize,String versionname,String versioncode){
-		this.productname = productname;
-		this.condition = condition;
-		this.authority = authority;
-		this.packname = packname;
-		this.packagesize = packagesize;
-		this.versionname = versionname;
-		this.versioncode = versioncode;
-		this.projectId = projectId;
-		this.uploadtime = uploadtime;
-		return this;
-	}
 	
 	public int getId() {
 		return id;
@@ -86,12 +74,6 @@ public class Product {
 	}
 	public void setCondition(String condition) {
 		this.condition = condition;
-	}
-	public String getAuthority() {
-		return authority;
-	}
-	public void setAuthority(String authority) {
-		this.authority = authority;
 	}
 	public String getPackname() {
 		return packname;
@@ -128,5 +110,11 @@ public class Product {
 	}
 	public void setUploadtime(Date uploadtime) {
 		this.uploadtime = uploadtime;
+	}
+	public int getAuthority() {
+		return authority;
+	}
+	public void setAuthority(int authority) {
+		this.authority = authority;
 	}
 }

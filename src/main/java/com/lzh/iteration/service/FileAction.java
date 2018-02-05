@@ -58,6 +58,9 @@ public class FileAction {
 		return sqlDataManager.search("owner",username,Project.class);
 	}
 	
+	public Project getProjectByProjectId(int projectId){
+		return sqlDataManager.search("id",projectId,Project.class).get(0);
+	}
 	public List<Product> getProductByProjectId(int projectId){
 		return sqlDataManager.search("projectId",projectId,Product.class);
 	}

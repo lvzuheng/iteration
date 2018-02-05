@@ -38,6 +38,9 @@ import com.lzh.iteration.bean.http.FileInfo;
 import com.lzh.iteration.bean.http.FileList;
 import com.lzh.iteration.bean.http.HttpRequestCode;
 import com.lzh.iteration.bean.http.ProductInfo;
+import com.lzh.iteration.bean.http.ProductUpdate;
+import com.lzh.iteration.bean.http.ProjectCreate;
+import com.lzh.iteration.bean.http.ProjectUpdate;
 import com.lzh.iteration.service.FileAction;
 import com.lzh.iteration.utils.ApkUtils;
 import com.lzh.iteration.utils.ConfigCode;
@@ -53,39 +56,51 @@ public class FileController {
 
 	@Resource
 	private FileAction fileAction;
-
-	@RequestMapping(value = "/list",produces="text/plain;charset=UTF-8")
+	@RequestMapping(value = "/updateProject",produces="text/plain;charset=UTF-8")
 	@ResponseBody
-	public String showList(HttpServletRequest request,HttpServletResponse response){
+	public String updateProject(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
-		System.out.println("进来了");
-		FileList fileList = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),FileList.class);
-		if(fileList == null || !check(fileList.getUserName(), fileList.getPassWord())){
-			return null;
+		ProjectUpdate projectUpdate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProjectUpdate.class);
+		if(projectUpdate != null && fileAction.checkPassword(projectUpdate.getUserName(), projectUpdate.getPassWord())){
+			try {
+				Project project= fileAction.getProjectByProjectId(projectUpdate.getProjectId());
+				if(project != null){
+					project.setAuthority(projectUpdate.getAuthority());
+					project.setProjectname(projectUpdate.getProjectName());
+					fileAction.update(project);
+					return JSON.toJSONString(project);
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+				return "0";
+			}
 		}
-		File file = new File(address );
-		List<FileInfo> fileLists = new ArrayList<FileInfo>();
-		if(file.exists()){
-			File[] files = file.listFiles();
-			for (File child : files) {
-				if (!child.isDirectory()) {
-					if(child.getName().substring(child.getName().lastIndexOf("."), child.getName().length()).equals(".apk")){
-						SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-						Calendar date = Calendar.getInstance();
-						date.setTimeInMillis(child.lastModified());
-						ApkUtils apkUtils = ApkUtils.ApkParse(child.getAbsolutePath());
-						System.out.println(child.getName());
-						if(apkUtils!=null){
-							fileLists.add(new FileInfo(child.getName(),apkUtils.parseAttrbute("package").get(0),apkUtils.parseAttrbute("versionName").get(0),sdf.format(date.getTime()), child.length()+""));
-							apkUtils.release();
-						}
+		return "0";
+	}
+
+
+	@RequestMapping(value = "/createProject",produces="text/plain;charset=UTF-8")
+	@ResponseBody
+	public String createProject(HttpServletRequest request,HttpServletResponse response){
+		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
+		ProjectCreate projectCreate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProjectCreate.class);
+		if(projectCreate != null && fileAction.checkPassword(projectCreate.getUserName(), projectCreate.getPassWord())){
+			try {
+				List<Project> pList  = fileAction.getProject(projectCreate.getUserName());
+				for(Project project:pList){
+					if(project.getProjectname().equals(projectCreate.getProjectName())){
+						return "0" ;
 					}
 				}
+				Project project = new Project(projectCreate.getProjectName(),projectCreate.getUserName(),projectCreate.getAuthority());
+				fileAction.save(project);
+				return JSON.toJSONString(project);
+			} catch (Exception e) {
+				// TODO: handle exception
+				return "0";
 			}
-		}else {
-			file.mkdir();
 		}
-		return JSONObject.toJSON(fileLists).toString();
+		return "0";
 	}
 
 	@RequestMapping(value = "/Projectinfo",produces="text/plain;charset=UTF-8")
@@ -120,6 +135,32 @@ public class FileController {
 	}
 
 
+	@RequestMapping(value = "/updateProduct",method = RequestMethod.POST)
+	@ResponseBody
+	public String updateProduct(HttpServletRequest request,HttpServletResponse response){
+		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
+		ProductUpdate productUpdate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProductUpdate.class);
+		if(check(productUpdate.getUserName(), productUpdate.getPassWord())){
+			System.out.println("fd：上传中");
+			if(productUpdate.getProductName().substring(productUpdate.getProductName().lastIndexOf("."), productUpdate.getProductName().length()).equals(".apk")){
+				try {
+					List<Product> products = fileAction.getProduct(productUpdate.getProductId());
+					if(products.get(0)!=null){
+						products.get(0).setAuthority(productUpdate.getAuthority());
+						products.get(0).setPackname(productUpdate.getProductName());
+						fileAction.update(products);
+						return "1";
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.out.println("error:IOException");
+					return "0";
+				}
+			}
+		}
+		return "0";
+	}
 	@RequestMapping(value = "/upload",method = RequestMethod.POST)
 	@ResponseBody
 	public String uploadApk(HttpServletRequest request,HttpServletResponse response){
@@ -167,7 +208,7 @@ public class FileController {
 									}
 								}
 							}
-							Product product = new Product(productName,Integer.valueOf(projcetId),null,null,
+							Product product = new Product(productName,Integer.valueOf(projcetId),null,0,
 									apkUtils.parseAttrbute("package").get(0),new Date(),size,apkUtils.parseAttrbute("versionName").get(0),apkUtils.parseAttrbute("versionCode").get(0));
 							fileAction.save(product);
 							return "1";
