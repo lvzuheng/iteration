@@ -40,6 +40,7 @@ import com.lzh.iteration.bean.http.HttpRequestCode;
 import com.lzh.iteration.bean.http.ProductInfo;
 import com.lzh.iteration.bean.http.ProductUpdate;
 import com.lzh.iteration.bean.http.ProjectCreate;
+import com.lzh.iteration.bean.http.ProjectRemove;
 import com.lzh.iteration.bean.http.ProjectUpdate;
 import com.lzh.iteration.service.FileAction;
 import com.lzh.iteration.utils.ApkUtils;
@@ -56,11 +57,12 @@ public class FileController {
 
 	@Resource
 	private FileAction fileAction;
-	@RequestMapping(value = "/updateProject",produces="text/plain;charset=UTF-8")
+	@RequestMapping(value = "/updateProject",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String updateProject(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		ProjectUpdate projectUpdate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProjectUpdate.class);
+		System.out.println(request.getParameter(ConfigCode.REQUEST));
 		if(projectUpdate != null && fileAction.checkPassword(projectUpdate.getUserName(), projectUpdate.getPassWord())){
 			try {
 				Project project= fileAction.getProjectByProjectId(projectUpdate.getProjectId());
@@ -72,6 +74,27 @@ public class FileController {
 				}
 			} catch (Exception e) {
 				// TODO: handle exception
+				e.printStackTrace();
+				return "0";
+			}
+		}
+		return "0";
+	}
+	@RequestMapping(value = "/removeProject",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
+	@ResponseBody
+	public String removeProject(HttpServletRequest request,HttpServletResponse response){
+		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
+		ProjectRemove projectRemove = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProjectRemove.class);
+		if(projectRemove != null && fileAction.checkPassword(projectRemove.getUserName(), projectRemove.getPassWord())){
+			try {
+				Project project= fileAction.getProjectByProjectId(projectRemove.getProjectId());
+				if(project != null){
+					fileAction.remove(project);
+					return "1";
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
 				return "0";
 			}
 		}
@@ -79,7 +102,7 @@ public class FileController {
 	}
 
 
-	@RequestMapping(value = "/createProject",produces="text/plain;charset=UTF-8")
+	@RequestMapping(value = "/createProject",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String createProject(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
@@ -103,7 +126,7 @@ public class FileController {
 		return "0";
 	}
 
-	@RequestMapping(value = "/Projectinfo",produces="text/plain;charset=UTF-8")
+	@RequestMapping(value = "/Projectinfo",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String Projectinfo(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
@@ -118,7 +141,7 @@ public class FileController {
 		return "0";
 	}
 
-	@RequestMapping(value = "/Productinfo",produces="text/plain;charset=UTF-8")
+	@RequestMapping(value = "/Productinfo",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String Productinfo(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");

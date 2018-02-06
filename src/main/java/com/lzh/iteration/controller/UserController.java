@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSON;
@@ -34,7 +35,7 @@ public class UserController {
 	@Resource
 	private FileAction userAction;
 
-	@RequestMapping(value = "/username",produces="text/plain;charset=UTF-8")
+	@RequestMapping(value = "/username",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String username(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
@@ -46,7 +47,7 @@ public class UserController {
 		return "0";
 	}
 
-	@RequestMapping(value = "/login",produces="text/plain;charset=UTF-8")
+	@RequestMapping(value = "/login",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String login(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
