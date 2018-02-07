@@ -17,7 +17,7 @@
 
 	<bean id="internalResourceViewResolver"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="prefix" value="/WEB-INF/html/" />
+		<property name="prefix" value="/" />
 		<property name="suffix" value=".html" />
 	</bean>
 	<!-- 设置上传文件最大值 1M=1*1024*1024(B)=1048576 bytes -->
