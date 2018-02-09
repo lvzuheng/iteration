@@ -10,19 +10,21 @@ public class IterationInfo {
 	private String versionCode;
 	private Date updateTime;
 	private String packSize;
-	private String downloadAddress;
+	private String Url;
+	private boolean status;
 	
 	public IterationInfo(){
 		
 	}
-	public IterationInfo(String packName,String fileName,String versionName,String versionCode,Date updateTime,String packSize,String downloadAddress){
+	public IterationInfo(String packName,String fileName,String versionName,String versionCode,Date updateTime,String packSize,String Url,boolean status){
 		this.packName = packName;
 		this.fileName = fileName;
 		this.versionCode = versionCode;
 		this.versionName= versionName;
 		this.setUpdateTime(updateTime);
 		this.packSize = packName;
-		this.downloadAddress = downloadAddress;
+		this.setUrl(Url);
+		this.status = status;
 	}
 	
 	public String getPackName() {
@@ -58,10 +60,16 @@ public class IterationInfo {
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
 	}
-	public String getDownloadAddress() {
-		return downloadAddress;
+	public boolean isStatus() {
+		return status;
 	}
-	public void setDownloadAddress(String downloadAddress) {
-		this.downloadAddress = downloadAddress;
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+	public String getUrl() {
+		return Url;
+	}
+	public void setUrl(String url) {
+		Url = url;
 	}
 }

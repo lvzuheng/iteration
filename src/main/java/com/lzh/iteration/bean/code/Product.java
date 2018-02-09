@@ -42,9 +42,13 @@ public class Product {
 	private String versioncode;
 	@Column(name="projectId")
 	private int projectId;
+	@Column(name="filename")
+	private String fileName;
 	
-	public Product(String productname,int projectId,String condition,int authority,String packname,Date uploadtime,String packagesize,String versionname,String versioncode){
+	
+	public Product(String productname,String fileName,int projectId,String condition,int authority,String packname,Date uploadtime,String packagesize,String versionname,String versioncode){
 		this.productname = productname;
+		this.fileName = fileName;
 		this.condition = condition;
 		this.setAuthority(authority);
 		this.packname = packname;
@@ -116,5 +120,11 @@ public class Product {
 	}
 	public void setAuthority(int authority) {
 		this.authority = authority;
+	}
+	public String getFileName() {
+		return fileName;
+	}
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 }

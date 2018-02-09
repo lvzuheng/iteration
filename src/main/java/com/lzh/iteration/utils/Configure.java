@@ -125,12 +125,19 @@ public class Configure {
 	
 	public static class Config{
 		private static String apkAddress ;
+		private static String indexPath;
 		public Config(){}
 		public String getApkAddress() {
 			return apkAddress;
 		}
 		public void setApkAddress(String apkAddress) {
 			this.apkAddress = apkAddress;
+		}
+		public static String getIndexPath() {
+			return indexPath;
+		}
+		public static void setIndexPath(String indexPath) {
+			Config.indexPath = indexPath;
 		}
 		
 	}

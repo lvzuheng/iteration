@@ -39,6 +39,7 @@ import com.lzh.iteration.bean.http.FileList;
 import com.lzh.iteration.bean.http.HttpRequestCode;
 import com.lzh.iteration.bean.http.IterationInfo;
 import com.lzh.iteration.bean.http.IterationRequest;
+import com.lzh.iteration.bean.http.ProductCreate;
 import com.lzh.iteration.bean.http.ProductInfo;
 import com.lzh.iteration.bean.http.ProductUpdate;
 import com.lzh.iteration.bean.http.ProjectCreate;
@@ -112,15 +113,18 @@ public class FileController {
 		ProjectCreate projectCreate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProjectCreate.class);
 		if(projectCreate != null && fileAction.checkPassword(projectCreate.getUserName(), projectCreate.getPassWord())){
 			try {
-				List<Project> pList  = fileAction.getProject(projectCreate.getUserName());
-				for(Project project:pList){
-					if(project.getProjectname().equals(projectCreate.getProjectName())){
-						return "0" ;
+				List<Project> pList = fileAction.getProject(projectCreate.getUserName());
+				if(pList != null && pList.size()>0){
+					for(Project project: pList){
+						
+						if(project.getProjectname().equals(projectCreate.getProjectName())){
+							return "0";
+						}
 					}
 				}
-				Project project = new Project(projectCreate.getProjectName(),projectCreate.getUserName(),projectCreate.getAuthority());
-				fileAction.save(project);
-				return JSON.toJSONString(project);
+				Project insertProject = new Project(projectCreate.getProjectName(),projectCreate.getUserName(),projectCreate.getAuthority());
+				fileAction.save(insertProject);
+				return "1";
 			} catch (Exception e) {
 				// TODO: handle exception
 				return "0";
@@ -139,6 +143,29 @@ public class FileController {
 			if(pList != null){
 				System.out.println( JSON.toJSONString(pList));
 				return JSON.toJSONString(pList);
+			}
+		}
+		return "0";
+	}
+
+	@RequestMapping(value = "/createProduct",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
+	@ResponseBody
+	public String createProduct(HttpServletRequest request,HttpServletResponse response){
+		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
+		ProductCreate productCreate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProductCreate.class);
+		if(productCreate != null && fileAction.checkPassword(productCreate.getUserName(), productCreate.getPassWord())){
+			try {
+				Project project  = fileAction.getProjectByProjectId(productCreate.getProjectId());
+				if(project!=null){
+					String conditionKey = MD5Utils.getMD5(productCreate.getProductName()+new Date().getTime());
+					Product product = new Product(productCreate.getProductName(),null,productCreate.getProjectId(),conditionKey,0,
+							null,new Date(),null,null,null);
+					fileAction.save(product);
+				}
+				return "1";
+			} catch (Exception e) {
+				// TODO: handle exception
+				return "0";
 			}
 		}
 		return "0";
@@ -235,7 +262,7 @@ public class FileController {
 								}
 							}
 							String conditionKey = MD5Utils.getMD5(productName+new Date().getTime());
-							Product product = new Product(productName,Integer.valueOf(projcetId),conditionKey,0,
+							Product product = new Product(productName,productName,Integer.valueOf(projcetId),conditionKey,0,
 									apkUtils.parseAttrbute("package").get(0),new Date(),size,apkUtils.parseAttrbute("versionName").get(0),apkUtils.parseAttrbute("versionCode").get(0));
 							fileAction.save(product);
 							return "1";
@@ -246,8 +273,10 @@ public class FileController {
 					e.printStackTrace();
 					System.out.println("error:IOException");
 					return "0";
-				}finally {
-					apkUtils.release();
+				}finally {	
+					if(apkUtils != null){
+						apkUtils.release();
+					}
 				}
 			}
 		}
@@ -275,10 +304,10 @@ public class FileController {
 						if(file.getName().equals(product.getProductname())){
 							System.err.println("delete:"+file.getName());
 							file.delete();
-							fileAction.remove(product);
 						}
 					}
 				}
+				fileAction.remove(product);
 			}
 
 			return "1";
@@ -291,44 +320,52 @@ public class FileController {
 	public String iterationInfo(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		IterationRequest iterationRequest = JSONObject.parseObject(request.getParameter("request"), IterationRequest.class);
-		Product product = fileAction.getProduct(iterationRequest.getConditionKey());
-		IterationInfo iterationInfo;
-		if(product != null){
-			String url ="http://"+request.getLocalAddr()+":"+request.getLocalPort()+request.getContextPath()+"/file/iterationDownload";
-			iterationInfo = new IterationInfo(product.getPackname(),product.getProductname(),
-					product.getVersionname(),product.getVersioncode(),product.getUploadtime(),product.getPackagesize(),url);
+		System.out.println("进来了");
+		System.out.println(request.getParameter("request")+","+(iterationRequest!=null));
+		if(iterationRequest!=null){
+			Product product = fileAction.getProduct(iterationRequest.getConditionKey());
+			IterationInfo iterationInfo;
+			if(product != null){
+				String url ="http://"+request.getLocalAddr()+":"+request.getLocalPort()+request.getContextPath()+"/file/iterationDownload";
+				iterationInfo = new IterationInfo(product.getPackname(),product.getProductname(),
+						product.getVersionname(),product.getVersioncode(),product.getUploadtime(),product.getPackagesize(),url,true);
+			}
+			else {
+				iterationInfo =  new IterationInfo(null,null,null,null,null,null,null,false);
+			}
+			return JSON.toJSONString(iterationInfo);
 		}
-		else {
-			iterationInfo =  new IterationInfo(null,null,null,null,null,null,null);
-		}
-		return JSON.toJSONString(iterationInfo);
+		return "";
 	}
 	@RequestMapping(value = "/iterationDownload",produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public void download(HttpServletRequest request,HttpServletResponse response) {
 		System.out.println("来访者："+request.getRemoteAddr());
 		IterationRequest iterationRequest = JSONObject.parseObject(request.getParameter("request"), IterationRequest.class);
-		Product product = fileAction.getProduct(iterationRequest.getConditionKey());
-		File file = new File(address+"/"+product.getProjectId()+"/"+product.getProductname());
-		String filenames = file.getName();
-		InputStream inputStream;
-		try {
-			inputStream = new BufferedInputStream(new FileInputStream(file));
-			byte[] buffer = new byte[inputStream.available()];
-			inputStream.read(buffer);
-			inputStream.close();
-			response.reset();
-			// 先去掉文件名称中的空格,然后转换编码格式为utf-8,保证不出现乱码,这个文件名称用于浏览器的下载框中自动显示的文件名
-			response.addHeader("Content-Disposition", "attachment;filename=" + new String(filenames.replaceAll(" ", "").getBytes("utf-8"), "iso8859-1"));
-			response.addHeader("Content-Length", "" + file.length());
-			OutputStream os = new BufferedOutputStream(response.getOutputStream());
-			response.setContentType("application/octet-stream");
-			os.write(buffer);// 输出文件
-			os.flush();
-			os.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		if(iterationRequest!= null){
+			Product product = fileAction.getProduct(iterationRequest.getConditionKey());
+			File file = new File(address+"/"+product.getProjectId()+"/"+product.getProductname());
+			String filenames = file.getName();
+			InputStream inputStream;
+			try {
+				inputStream = new BufferedInputStream(new FileInputStream(file));
+				byte[] buffer = new byte[inputStream.available()];
+				inputStream.read(buffer);
+				inputStream.close();
+				response.reset();
+				// 先去掉文件名称中的空格,然后转换编码格式为utf-8,保证不出现乱码,这个文件名称用于浏览器的下载框中自动显示的文件名
+				response.addHeader("Content-Disposition", "attachment;filename=" + new String(filenames.replaceAll(" ", "").getBytes("utf-8"), "iso8859-1"));
+				response.addHeader("Content-Length", "" + file.length());
+				OutputStream os = new BufferedOutputStream(response.getOutputStream());
+				response.setContentType("application/octet-stream");
+				os.write(buffer);// 输出文件
+				os.flush();
+				os.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
+
 	}
 
 

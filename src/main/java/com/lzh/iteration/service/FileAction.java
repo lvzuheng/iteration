@@ -78,7 +78,7 @@ public class FileAction {
 		return sqlDataManager.searchSqlList("id",ProductId,Product.class);
 	}
 	public Product getProduct(String conditionKey){
-		List<Product> pList = sqlDataManager.search("conditionKey",conditionKey,Product.class);
+		List<Product> pList = sqlDataManager.search("condition",conditionKey,Product.class);
 		if(pList!= null && pList.size()>0){
 			return pList.get(0);
 		}
