@@ -65,14 +65,21 @@ public class FileAction {
 		}
 		return null;
 	}
+	public List<Product> getProduct(int projectId,String name){
+		return sqlDataManager.search(new String[]{"projectId","product_name"},new Object[]{projectId,name},Product.class);
+	}
 	public List<Product> getProductByProjectId(int projectId){
 		return sqlDataManager.search("projectId",projectId,Product.class);
 	}
 	public List<Product> getProductByProjectId(Collection<Integer> projectIds){
 		return sqlDataManager.searchSqlList("projectId",projectIds,Product.class);
 	}
-	public List<Product> getProduct(int ProductId){
-		return sqlDataManager.search("id",ProductId,Product.class);
+	public Product getProduct(int ProductId){
+		List<Product> pList = sqlDataManager.search("id",ProductId,Product.class);
+		if(pList != null && pList.size()>0){
+			return pList.get(0);
+		}
+		return null;
 	}
 	public List<Product> getProduct(Collection<Integer> ProductId){
 		return sqlDataManager.searchSqlList("id",ProductId,Product.class);

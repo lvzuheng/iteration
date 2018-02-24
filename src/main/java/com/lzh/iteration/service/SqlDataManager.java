@@ -94,6 +94,19 @@ public class SqlDataManager {
 		return Session().createQuery("FROM "+t.getSimpleName()+" WHERE "+key+" = :value")
 				.setParameter("value", value).list();
 	}
+	public <T> List<T> search(String[] keys,Object[] values,Class<T> t){
+		StringBuilder stringBuilder = new StringBuilder();
+		for(int i =0;i<keys.length;i++){
+			if(keys[i] != null && values[i] != null){
+				stringBuilder.append(keys[i]).append(" = ").append("'").append(values[i]).append("'");
+			}
+			if(i<keys.length-1){
+				stringBuilder.append(" AND ");
+			}
+		}
+		System.err.println("FROM "+t.getSimpleName()+" WHERE "+stringBuilder.toString());
+		return Session().createQuery("FROM "+t.getSimpleName()+" WHERE "+stringBuilder.toString()).list();
+	}
 
 	public List<Object> search(String sql) {
 		return Session().createQuery(sql).list();

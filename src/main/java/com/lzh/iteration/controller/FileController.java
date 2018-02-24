@@ -93,6 +93,13 @@ public class FileController {
 			try {
 				Project project= fileAction.getProjectByProjectId(projectRemove.getProjectId());
 				if(project != null){
+					File dir = new File(address+"/"+project.getId());
+					if(dir!=null && dir.isDirectory()){
+						for(File file: dir.listFiles()){
+							file.delete();
+						}
+						dir.delete();
+					}
 					fileAction.remove(project);
 					return "1";
 				}
@@ -116,7 +123,7 @@ public class FileController {
 				List<Project> pList = fileAction.getProject(projectCreate.getUserName());
 				if(pList != null && pList.size()>0){
 					for(Project project: pList){
-						
+
 						if(project.getProjectname().equals(projectCreate.getProjectName())){
 							return "0";
 						}
@@ -148,23 +155,32 @@ public class FileController {
 		return "0";
 	}
 
+	/**
+	 * 可以进行连表查询优化
+	 * */
 	@RequestMapping(value = "/createProduct",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String createProduct(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		ProductCreate productCreate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProductCreate.class);
+		System.err.println(request.getParameter(ConfigCode.REQUEST));
 		if(productCreate != null && fileAction.checkPassword(productCreate.getUserName(), productCreate.getPassWord())){
 			try {
 				Project project  = fileAction.getProjectByProjectId(productCreate.getProjectId());
 				if(project!=null){
-					String conditionKey = MD5Utils.getMD5(productCreate.getProductName()+new Date().getTime());
-					Product product = new Product(productCreate.getProductName(),null,productCreate.getProjectId(),conditionKey,0,
-							null,new Date(),null,null,null);
-					fileAction.save(product);
+					List<Product> pList = fileAction.getProduct(productCreate.getProjectId(),productCreate.getProductName());
+					if(pList == null || pList.size() == 0){
+						String conditionKey = MD5Utils.getMD5(productCreate.getProductName()+new Date().getTime());
+						Product newProduct = new Product(productCreate.getProductName(),null,productCreate.getProjectId(),conditionKey,productCreate.getAuthority(),
+								null,null,new Date(),null,null,null);
+						fileAction.save(newProduct);
+						return "1";
+					}
 				}
-				return "1";
+				return "0";
 			} catch (Exception e) {
 				// TODO: handle exception
+				e.printStackTrace();
 				return "0";
 			}
 		}
@@ -197,11 +213,11 @@ public class FileController {
 			System.out.println("fd：上传中");
 			if(productUpdate.getProductName().substring(productUpdate.getProductName().lastIndexOf("."), productUpdate.getProductName().length()).equals(".apk")){
 				try {
-					List<Product> products = fileAction.getProduct(productUpdate.getProductId());
-					if(products.get(0)!=null){
-						products.get(0).setAuthority(productUpdate.getAuthority());
-						products.get(0).setPackname(productUpdate.getProductName());
-						fileAction.update(products);
+					Product product = fileAction.getProduct(productUpdate.getProductId());
+					if(product!=null){
+						product.setAuthority(productUpdate.getAuthority());
+						product.setPackname(productUpdate.getProductName());
+						fileAction.update(product);
 						return "1";
 					}
 				} catch (Exception e) {
@@ -222,61 +238,51 @@ public class FileController {
 		String userName = multipartHttpServletRequest.getParameter(ConfigCode.USERNAME);
 		String passWord =  multipartHttpServletRequest.getParameter(ConfigCode.PASSWORD);
 		String projcetId =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADPROJECTID);
-		String productName =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADFILENAME);
+		String productId =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADPRODUCTID);
 		String size  =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADSIZE);
 		if(check(userName, passWord)){
-			System.out.println("fd：上传中");
-			if(productName.substring(productName.lastIndexOf("."), productName.length()).equals(".apk")){
-				ApkUtils apkUtils  = null;
-				try {
-					System.out.println("fd：上传中。。。。。"+projcetId);
-					MultipartFile multipartFile = multipartHttpServletRequest.getFile(ConfigCode.UPLOADDATA);
-					System.out.println("fd："+multipartFile.getBytes().length);
-					if(String.valueOf(multipartFile.getBytes().length).equals(size)){
-						File file = new File(address+"/"+projcetId+"/"+productName);
-						System.out.println("file:"+","+file.getParentFile().exists());
-						if(!file.getParentFile().exists()){
-							file.getParentFile().mkdir();
-						}
-						if(file.exists()){
-							file.delete();
-						}
-						System.out.println("address:"+address+"/"+projcetId+"/"+multipartHttpServletRequest.getParameter(ConfigCode.UPLOADFILENAME));
-						StreamWriter.PrintStreamWrite(multipartFile.getBytes(),file,true);
-						apkUtils = ApkUtils.ApkParse(file.getAbsolutePath());
-						if(apkUtils != null){
-							List<Product> products = fileAction.getProductByProjectId(Integer.valueOf(projcetId));
-							if(products!=null && products.size()>0){
-								for(Product p:products){
-									System.err.println(p.getProductname()+","+productName);
-									if(p.getProductname().equals(productName)){
-										p.setPackname(apkUtils.parseAttrbute("package").get(0));
-										p.setPackagesize(size);
-										p.setProjectId(Integer.valueOf(projcetId));
-										p.setVersionname(apkUtils.parseAttrbute("versionName").get(0));
-										p.setVersioncode(apkUtils.parseAttrbute("versionCode").get(0));
-										p.setUploadtime(new Date());
-										fileAction.update(p);
-										return "1";
-									}
-								}
-							}
-							String conditionKey = MD5Utils.getMD5(productName+new Date().getTime());
-							Product product = new Product(productName,productName,Integer.valueOf(projcetId),conditionKey,0,
-									apkUtils.parseAttrbute("package").get(0),new Date(),size,apkUtils.parseAttrbute("versionName").get(0),apkUtils.parseAttrbute("versionCode").get(0));
-							fileAction.save(product);
-							return "1";
-						}
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					System.out.println("error:IOException");
-					return "0";
-				}finally {	
-					if(apkUtils != null){
-						apkUtils.release();
-					}
+			Product product = fileAction.getProduct(Integer.valueOf(productId));
+			if(product == null){
+				return "233";
+			}
+			ApkUtils apkUtils  = null;
+			try {
+				System.out.println("fd：上传中。。。。。"+projcetId);
+				MultipartFile multipartFile = multipartHttpServletRequest.getFile(ConfigCode.UPLOADDATA);
+				System.out.println("fd："+multipartFile.getBytes().length);
+				if(!String.valueOf(multipartFile.getBytes().length).equals(size)){
+					System.out.println("fd："+multipartFile.getBytes().length+","+size);
+					return "23333";
+				}
+				File file = new File(address+"/"+projcetId+"/"+product.getProductname());
+				System.out.println("file:"+","+file.getParentFile().exists());
+				if(!file.getParentFile().exists()){
+					file.getParentFile().mkdir();
+				}
+				if(file.exists()){
+					file.delete();
+				}
+				System.out.println("address:"+address+"/"+projcetId+"/"+multipartHttpServletRequest.getParameter(ConfigCode.UPLOADFILENAME));
+				StreamWriter.PrintStreamWrite(multipartFile.getBytes(),file,true);
+				apkUtils = ApkUtils.ApkParse(file.getAbsolutePath());
+				if(apkUtils != null){
+					product.setPackname(apkUtils.parseAttrbute("package").get(0));
+					product.setPackagesize(size);
+					product.setProjectId(Integer.valueOf(projcetId));
+					product.setVersionname(apkUtils.parseAttrbute("versionName").get(0));
+					product.setVersioncode(apkUtils.parseAttrbute("versionCode").get(0));
+					product.setUploadtime(new Date());
+					fileAction.update(product);
+					return "1";
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println("error:IOException");
+				return "0";
+			}finally {	
+				if(apkUtils != null){
+					apkUtils.release();
 				}
 			}
 		}
@@ -287,7 +293,6 @@ public class FileController {
 	@ResponseBody
 	public String removeApk(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
-
 		FileDelete fileDelete = JSONObject.parseObject(request.getParameter("request"), FileDelete.class);
 		System.err.println("delete:"+request.getParameter("request"));
 		boolean check = fileAction.checkPassword(fileDelete.getUserName(), fileDelete.getPassWord());

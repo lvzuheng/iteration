@@ -23,7 +23,6 @@ public class Product {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private int id;
-
 	@Column(name="product_name")
 	private String productname;
 	@Column(name="condition_key")
@@ -34,6 +33,8 @@ public class Product {
 	private String packname;
 	@Column(name="uploadtime")
 	private Date uploadtime;
+	@Column(name="createtime")
+	private Date createtime;
 	@Column(name="packagesize")
 	private String packagesize;
 	@Column(name="version_name")
@@ -46,7 +47,7 @@ public class Product {
 	private String fileName;
 	
 	
-	public Product(String productname,String fileName,int projectId,String condition,int authority,String packname,Date uploadtime,String packagesize,String versionname,String versioncode){
+	public Product(String productname,String fileName,int projectId,String condition,int authority,String packname,Date uploadtime,Date createtime,String packagesize,String versionname,String versioncode){
 		this.productname = productname;
 		this.fileName = fileName;
 		this.condition = condition;
@@ -57,6 +58,7 @@ public class Product {
 		this.versioncode = versioncode;
 		this.projectId = projectId;
 		this.uploadtime = uploadtime;
+		this.createtime = createtime;
 	}
 	public Product(){}
 	
@@ -126,5 +128,11 @@ public class Product {
 	}
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+	public Date getCreatetime() {
+		return createtime;
+	}
+	public void setCreatetime(Date createtime) {
+		this.createtime = createtime;
 	}
 }
