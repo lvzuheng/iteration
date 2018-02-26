@@ -166,6 +166,9 @@ public class FileController {
 		ProductCreate productCreate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProductCreate.class);
 		System.err.println(request.getParameter(ConfigCode.REQUEST));
 		if(productCreate != null && fileAction.checkPassword(productCreate.getUserName(), productCreate.getPassWord())){
+			if(productCreate.getProductName() == null){
+				return "2";
+			}
 			try {
 				Project project  = fileAction.getProjectByProjectId(productCreate.getProjectId());
 				if(project!=null){
@@ -241,6 +244,7 @@ public class FileController {
 		String projcetId =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADPROJECTID);
 		String productId =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADPRODUCTID);
 		String size  =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADSIZE);
+		String fileName = multipartHttpServletRequest.getParameter(ConfigCode.UPLOADFILENAME);
 		if(check(userName, passWord)){
 			Product product = fileAction.getProduct(Integer.valueOf(productId));
 			if(product == null){
@@ -273,6 +277,7 @@ public class FileController {
 					product.setVersionname(apkUtils.parseAttrbute("versionName").get(0));
 					product.setVersioncode(apkUtils.parseAttrbute("versionCode").get(0));
 					product.setUploadtime(new Date());
+					product.setFileName(fileName);
 					fileAction.update(product);
 					return "1";
 				}
@@ -333,7 +338,7 @@ public class FileController {
 			IterationInfo iterationInfo;
 			if(product != null){
 				String url ="http://"+request.getLocalAddr()+":"+request.getLocalPort()+request.getContextPath()+"/file/iterationDownload";
-				iterationInfo = new IterationInfo(product.getPackname(),product.getProductname(),
+				iterationInfo = new IterationInfo(product.getPackname(),product.getFileName(),
 						product.getVersionname(),product.getVersioncode(),product.getUploadtime(),product.getPackagesize(),url,true);
 			}
 			else {

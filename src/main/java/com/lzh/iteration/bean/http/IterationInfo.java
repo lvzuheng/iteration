@@ -22,7 +22,7 @@ public class IterationInfo {
 		this.versionCode = versionCode;
 		this.versionName= versionName;
 		this.setUpdateTime(updateTime);
-		this.packSize = packName;
+		this.packSize = packSize;
 		this.setUrl(Url);
 		this.status = status;
 	}

@@ -23,14 +23,9 @@ public class FileDelete extends HttpRequestCode{
 		this.isDelete = isDelete;
 	}
 
-
-
 	public Set<Integer> getProductId() {
 		return productId;
 	}
-
-
-
 	public void setProductId(Set<Integer> productId) {
 		this.productId = productId;
 	}
