@@ -100,6 +100,7 @@ public class FileController {
 						}
 						dir.delete();
 					}
+					
 					fileAction.remove(project);
 					return "1";
 				}
