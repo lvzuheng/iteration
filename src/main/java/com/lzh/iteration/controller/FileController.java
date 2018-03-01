@@ -59,6 +59,7 @@ public class FileController {
 
 	private String address = Configure.getConfig().getApkAddress();
 
+	/**项目信息更新 */
 	@Resource
 	private FileAction fileAction;
 	@RequestMapping(value = "/updateProject",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
@@ -84,6 +85,7 @@ public class FileController {
 		}
 		return "0";
 	}
+	/**项目移除 */
 	@RequestMapping(value = "/removeProject",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String removeProject(HttpServletRequest request,HttpServletResponse response){
@@ -113,7 +115,7 @@ public class FileController {
 		return "0";
 	}
 
-
+	/**项目创建 */
 	@RequestMapping(value = "/createProject",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String createProject(HttpServletRequest request,HttpServletResponse response){
@@ -140,7 +142,7 @@ public class FileController {
 		}
 		return "0";
 	}
-
+	/**项目信息 */
 	@RequestMapping(value = "/Projectinfo",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String Projectinfo(HttpServletRequest request,HttpServletResponse response){
@@ -157,6 +159,7 @@ public class FileController {
 	}
 
 	/**
+	 * 应用创建
 	 * 可以进行连表查询优化
 	 * */
 	@RequestMapping(value = "/createProduct",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
@@ -190,7 +193,7 @@ public class FileController {
 		}
 		return "0";
 	}
-
+	/**应用信息 */
 	@RequestMapping(value = "/Productinfo",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String Productinfo(HttpServletRequest request,HttpServletResponse response){
@@ -207,7 +210,7 @@ public class FileController {
 		return "0";
 	}
 
-
+	/**项目更新 */
 	@RequestMapping(value = "/updateProduct",method = RequestMethod.POST)
 	@ResponseBody
 	public String updateProduct(HttpServletRequest request,HttpServletResponse response){
@@ -234,6 +237,8 @@ public class FileController {
 		}
 		return "0";
 	}
+	
+	/**文件上传 */
 	@RequestMapping(value = "/upload",method = RequestMethod.POST)
 	@ResponseBody
 	public String uploadApk(HttpServletRequest request,HttpServletResponse response){
@@ -295,6 +300,7 @@ public class FileController {
 		return "0";
 	}
 
+	/**文件删除 */
 	@RequestMapping(value = "/delete" ,method = RequestMethod.POST)
 	@ResponseBody
 	public String removeApk(HttpServletRequest request,HttpServletResponse response){
@@ -326,6 +332,7 @@ public class FileController {
 		return "0";
 	}
 
+	/**迭代信息查询 */
 	@RequestMapping("/iterationInfo")
 	@ResponseBody
 	public String iterationInfo(HttpServletRequest request,HttpServletResponse response){
@@ -348,6 +355,8 @@ public class FileController {
 		}
 		return "";
 	}
+	
+	/**文件下载接口 */
 	@RequestMapping(value = "/iterationDownload",produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public void download(HttpServletRequest request,HttpServletResponse response) {

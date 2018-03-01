@@ -24,7 +24,7 @@ import test.AXMLPrinter;
 
 
 
-
+/**apk解析工具 */
 public class ApkUtils {
 	private InputStream inputStream ;
 	private ZipFile zipFile ;

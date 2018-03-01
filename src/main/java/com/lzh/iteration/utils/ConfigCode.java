@@ -1,8 +1,7 @@
 package com.lzh.iteration.utils;
 
 public class ConfigCode {
-
-	
+	/**公共关键字 */
 	public static String REQUEST = "request";
 	public static String USERNAME = "userName";
 	public static String PASSWORD = "passWord";
