@@ -2,6 +2,7 @@ package com.lzh.iteration.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.persistence.Entity;
@@ -94,18 +95,20 @@ public class SqlDataManager {
 		return Session().createQuery("FROM "+t.getSimpleName()+" WHERE "+key+" = :value")
 				.setParameter("value", value).list();
 	}
-	public <T> List<T> search(String[] keys,Object[] values,Class<T> t){
+	public <T> List<T> search(Map<String, Object> map,Class<T> t){
 		StringBuilder stringBuilder = new StringBuilder();
-		for(int i =0;i<keys.length;i++){
-			if(keys[i] != null && values[i] != null){
-				stringBuilder.append(keys[i]).append(" = ").append("'").append(values[i]).append("'");
-			}
-			if(i<keys.length-1){
-				stringBuilder.append(" AND ");
+		stringBuilder.append("FROM "+t.getSimpleName() + " WHERE ");
+		for(String key: map.keySet()){
+			if(key != null ){
+				stringBuilder.append(key).append(" = ").append(":").append(key).append(" AND ");
 			}
 		}
-		System.err.println("FROM "+t.getSimpleName()+" WHERE "+stringBuilder.toString());
-		return Session().createQuery("FROM "+t.getSimpleName()+" WHERE "+stringBuilder.toString()).list();
+		System.out.println("aaa:"+stringBuilder.toString());
+		stringBuilder.delete(stringBuilder.lastIndexOf(" AND "),stringBuilder.length());
+		System.out.println(stringBuilder.toString());
+		return Session().createQuery(stringBuilder.toString()).setProperties(map).list();
+//		System.err.println("FROM "+t.getSimpleName()+" WHERE "+stringBuilder.toString());
+//		return Session().createQuery("FROM "+t.getSimpleName()+" WHERE "+stringBuilder.toString()).list();
 	}
 
 	public List<Object> search(String sql) {

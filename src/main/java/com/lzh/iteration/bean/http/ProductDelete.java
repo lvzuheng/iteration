@@ -3,12 +3,12 @@ package com.lzh.iteration.bean.http;
 import java.io.File;
 import java.util.Set;
 
-public class FileDelete extends HttpRequestCode{
+public class ProductDelete extends HttpRequestCode{
 
 	private Set<Integer> productId;
 	private boolean isDelete;
 	
-	public FileDelete() {
+	public ProductDelete() {
 		// TODO Auto-generated constructor stub
 	}
 	
