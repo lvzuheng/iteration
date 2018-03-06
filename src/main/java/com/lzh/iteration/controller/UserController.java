@@ -77,15 +77,19 @@ public class UserController {
 	}
 
 
-	@RequestMapping(value = "/regiest",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
+	@RequestMapping(value = "/register",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
-	public String regiest(HttpServletRequest request,HttpServletResponse response){
+	public String register(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		UserRegister userRegister = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),UserRegister.class);
+		System.err.println(userRegister == null );
+		System.err.println(request.getParameter(ConfigCode.REQUEST));
 		if(userRegister != null ){
+			System.err.println((userRegister.getUserName())+","+(userRegister.getPassword())+","+(userRegister.getNickname() ));
 			if(userRegister.getUsername()!= null && userRegister.getPassword() != null && userRegister.getNickname() != null){
+				System.err.println(userRegister.getUsername());
 				User user = new User(userRegister.getUsername(),userRegister.getPassword(),
-						userRegister.getNickname(),userRegister.getAuthority(),
+						userRegister.getNickname(),0,
 						new Date(),null);
 				userServices.save(user);
 				return JSON.toJSONString(user);
