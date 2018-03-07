@@ -25,6 +25,7 @@ import com.lzh.iteration.bean.http.FileInfo;
 import com.lzh.iteration.bean.http.productList;
 import com.lzh.iteration.bean.http.HttpRequestCode;
 import com.lzh.iteration.bean.http.ProductInfo;
+import com.lzh.iteration.bean.http.UserModifyPassword;
 import com.lzh.iteration.bean.http.UserRegister;
 import com.lzh.iteration.service.ProjectServices;
 import com.lzh.iteration.service.UserServices;
@@ -62,6 +63,8 @@ public class UserController {
 		}
 		return "0";
 	}
+	
+	
 	@RequestMapping(value = "/info",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String info(HttpServletRequest request,HttpServletResponse response){
@@ -97,5 +100,23 @@ public class UserController {
 		}
 		return "0";
 	}
+	
+	
 
+	@RequestMapping(value = "/modifyPassword",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
+	@ResponseBody
+	public String modifyPassword (HttpServletRequest request,HttpServletResponse response){
+		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
+		UserModifyPassword userModifyPassword = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),UserModifyPassword.class);
+		if(userModifyPassword != null ){
+			User user = userServices.getUserInfo(userModifyPassword.getUserName(), userModifyPassword.getPassWord());
+			if(user != null){
+				user.setPassword(userModifyPassword.getNewPassword());
+				userServices.save(user);
+				return "1";
+			}
+		}
+		return "0";
+	}
+	
 }
