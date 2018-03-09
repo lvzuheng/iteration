@@ -41,4 +41,8 @@ public class ProductServices extends SqlServices{
 		}
 		return null;
 	}
+	
+	public int getProductCount(Object[] productId){
+		return sqlDataManager.searchCountbyList("projectId",productId,Product.class);
+	}
 }

@@ -26,7 +26,9 @@ import com.lzh.iteration.bean.http.productList;
 import com.lzh.iteration.bean.http.HttpRequestCode;
 import com.lzh.iteration.bean.http.ProductInfo;
 import com.lzh.iteration.bean.http.UserModifyPassword;
+import com.lzh.iteration.bean.http.UserPersonInfo;
 import com.lzh.iteration.bean.http.UserRegister;
+import com.lzh.iteration.service.ProductServices;
 import com.lzh.iteration.service.ProjectServices;
 import com.lzh.iteration.service.UserServices;
 import com.lzh.iteration.utils.ApkUtils;
@@ -40,6 +42,11 @@ public class UserController {
 
 	@Resource
 	private UserServices userServices;
+	@Resource
+	private ProjectServices projectServices;
+	@Resource
+	private ProductServices productServices;
+	
 
 	@RequestMapping(value = "/username",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
@@ -78,6 +85,23 @@ public class UserController {
 		}
 		return "0";
 	}
+	
+	@RequestMapping(value = "/person",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
+	@ResponseBody
+	public String person(HttpServletRequest request,HttpServletResponse response){
+		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
+		HttpRequestCode httpRequestCode = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),HttpRequestCode.class);
+		if(httpRequestCode != null ){
+			User user = userServices.getUserInfo(httpRequestCode.getUserName(), httpRequestCode.getPassWord());
+			if(user != null){
+				List<Object> projectIds = projectServices.getProjectId(httpRequestCode.getUserName());
+				int productCounts = productServices.getProductCount(projectIds.toArray());
+				UserPersonInfo userPersonInfo = new UserPersonInfo(user.getUsername(), user.getNickname(), projectIds.size(),productCounts,user.getRegisterTime(),user.getAuthority());
+				return JSON.toJSONString(userPersonInfo);
+			}
+		}
+		return "0";
+	}
 
 
 	@RequestMapping(value = "/register",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
@@ -108,13 +132,16 @@ public class UserController {
 	public String modifyPassword (HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		UserModifyPassword userModifyPassword = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),UserModifyPassword.class);
+		System.out.println(request.getParameter(ConfigCode.REQUEST));
 		if(userModifyPassword != null ){
+			System.out.println(request.getParameter(ConfigCode.REQUEST));
 			User user = userServices.getUserInfo(userModifyPassword.getUserName(), userModifyPassword.getPassWord());
 			if(user != null){
 				user.setPassword(userModifyPassword.getNewPassword());
 				userServices.save(user);
 				return "1";
 			}
+			return "2";
 		}
 		return "0";
 	}

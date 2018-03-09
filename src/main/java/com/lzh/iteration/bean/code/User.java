@@ -8,8 +8,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.omg.CORBA.PUBLIC_MEMBER;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name="user")
@@ -25,6 +28,7 @@ public class User {
 	private String password;
 
 	@Column(name="register_time")
+	@Temporal(TemporalType.DATE)
 	private Date registerTime;
 	
 	@Column(name="last_login")

@@ -31,7 +31,16 @@ public class ProjectServices extends SqlServices{
 		}
 		return null;
 	}
+	public List<Object> getProjectId(String username){
+		List<Object> projectIds = sqlDataManager.search("SELECT id FROM Project WHERE owner = '"+username+"'");
+		if(projectIds!= null && projectIds.size()>0){
+			return projectIds;
+		}
+		return null;
+	}
 
-	
+	public int getProjectctCount(String userName){
+		return sqlDataManager.searchCount("owner",userName,Project.class);
+	}
 	
 }

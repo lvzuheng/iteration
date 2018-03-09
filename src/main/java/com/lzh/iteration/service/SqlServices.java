@@ -30,6 +30,8 @@ public class SqlServices {
 	public void remove(Object obj){
 		sqlDataManager.remove(obj);
 	}
+	
+
 
 
 	public  boolean checkUsername(String username){
@@ -60,5 +62,9 @@ public class SqlServices {
 			}
 		}
 		return false;
+	}
+	
+	public <T> int count(String key,String value,Class<T> t){
+		return sqlDataManager.searchCount(key, value, t);
 	}
 }

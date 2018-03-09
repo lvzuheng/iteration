@@ -136,4 +136,18 @@ public class SqlDataManager {
 	public  void remove(String sql){
 		Session().createQuery(sql).executeUpdate();
 	}
+	
+	
+	public <T> int searchCount(Class<T> t){
+		return ((Integer)Session().createQuery("SELECT COUNT(1) FROM "+t.getSimpleName())
+				.uniqueResult()).intValue();
+	}
+	public <T> int searchCount(String key,Object value,Class<T> t){
+		return ((Integer)Session().createQuery("SELECT COUNT(1) FROM "+t.getSimpleName()+" WHERE "+key + "= :value")
+				.setParameter("value", value).uniqueResult()).intValue();
+	}
+	public <T> int searchCountbyList(String key,Object[] value,Class<T> t){
+		return ((Long)Session().createQuery("SELECT count(*) FROM "+t.getSimpleName()+" WHERE "+key + " in (:value)")
+				.setParameterList("value", value).uniqueResult()).intValue();
+	}
 }
