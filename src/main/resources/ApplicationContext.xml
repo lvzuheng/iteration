@@ -15,7 +15,8 @@
 
 	<!-- 自动扫描与装配bean -->
 	<context:annotation-config />
-	<context:component-scan base-package="com.lzh"></context:component-scan>
+	<context:component-scan base-package="com.lzh">
+	</context:component-scan>
 
 	<!-- 配置c3p0数据库连接池 -->
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">

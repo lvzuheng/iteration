@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.lzh.iteration.bean.code.Product;
 
-@Service
+@Repository
 public class ProductServices extends SqlServices{
 
 	public List<Product> getProduct(int projectId,String name){

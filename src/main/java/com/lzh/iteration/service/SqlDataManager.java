@@ -12,13 +12,12 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Entity
-@Service
+@Repository
 @Transactional
-@Component
 public class SqlDataManager {
 	@Resource
 	private SessionFactory sessionFactory;

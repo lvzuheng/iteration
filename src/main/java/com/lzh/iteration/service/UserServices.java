@@ -2,14 +2,19 @@ package com.lzh.iteration.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.lzh.iteration.bean.code.Product;
 import com.lzh.iteration.bean.code.User;
 
-@Service
+@Repository
 public class UserServices extends SqlServices{
 
+	public UserServices(){
+		System.out.println("spring扫描");
+	}
+	
 	public User getUserInfo(String username,String password){
 		if(username!= null && password != null){
 			System.out.println(username);
