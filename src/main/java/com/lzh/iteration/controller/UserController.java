@@ -37,8 +37,8 @@ import com.lzh.iteration.utils.ConfigCode;
 
 import io.netty.handler.codec.json.JsonObjectDecoder;
 
-@Controller
 @RequestMapping(value = "/user")
+@Controller
 public class UserController {
 
 	@Autowired
@@ -93,7 +93,7 @@ public class UserController {
 	@RequestMapping(value = "/person",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String person(HttpServletRequest request,HttpServletResponse response){
-		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
+		response.setHeader("Access-Control-Allow-Origin", "*");
 		HttpRequestCode httpRequestCode = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),HttpRequestCode.class);
 		if(httpRequestCode != null ){
 			User user = userServices.getUserInfo(httpRequestCode.getUserName(), httpRequestCode.getPassWord());
@@ -150,4 +150,17 @@ public class UserController {
 		return "0";
 	}
 	
+	@RequestMapping(value = "/test",method = RequestMethod.GET,produces="text/plain;charset=UTF-8")
+	@ResponseBody
+	public String test(HttpServletRequest request,HttpServletResponse response){
+		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
+		System.out.println("进来了");
+		try {
+			return JSON.toJSONString(userServices.search(User.class));
+		} catch (Exception e) {
+			// TODO: handle exception
+			return e.getMessage();
+		}
+	}
+
 }

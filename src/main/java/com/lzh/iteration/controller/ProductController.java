@@ -141,6 +141,7 @@ public class ProductController {
 		String productId =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADPRODUCTID);
 		String size  =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADSIZE);
 		String fileName = multipartHttpServletRequest.getParameter(ConfigCode.UPLOADFILENAME);
+		System.out.println(fileName);
 		if(productServices.checkPassword(userName, passWord)){
 			Product product = productServices.getProduct(Integer.valueOf(productId));
 			if(product == null){
@@ -155,10 +156,10 @@ public class ProductController {
 					System.out.println("fd："+multipartFile.getBytes().length+","+size);
 					return "23333";
 				}
-				File file = new File(address+"/"+projcetId+"/"+product.getProductname());
+				File file = new File(address+"/"+projcetId+"/"+product.getProductname()+"/"+fileName);
 				System.out.println("file:"+","+file.getParentFile().exists());
 				if(!file.getParentFile().exists()){
-					file.getParentFile().mkdir();
+					file.getParentFile().mkdirs();
 				}
 				if(file.exists()){
 					file.delete();

@@ -15,8 +15,6 @@
 		use-default-filters="false">
 		<context:include-filter type="annotation"
 			expression="org.springframework.stereotype.Controller" />
-		<context:exclude-filter type="annotation"
-			expression="org.springframework.stereotype.Service" />
 	</context:component-scan>
 	<mvc:annotation-driven />
 	<!-- <mvc:resources location="/resources/" mapping="/resources/**" /> -->

@@ -30,6 +30,10 @@ public class SqlServices {
 	}
 	public void remove(Object obj){
 		sqlDataManager.remove(obj);
+		
+	}
+	public <T> List<T> search(Class<T> t){
+		return sqlDataManager.search(t);
 	}
 	
 
