@@ -156,7 +156,7 @@ public class ProductController {
 					System.out.println("fd："+multipartFile.getBytes().length+","+size);
 					return "23333";
 				}
-				File file = new File(address+"/"+projcetId+"/"+product.getProductname()+"/"+fileName);
+				File file = new File(address+"/"+product.getProjectId()+"/"+product.getId()+"/"+fileName);
 				System.out.println("file:"+","+file.getParentFile().exists());
 				if(!file.getParentFile().exists()){
 					file.getParentFile().mkdirs();

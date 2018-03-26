@@ -128,7 +128,7 @@ public class ProjectController {
 				List<Project> pList = projectServices.getProject(projectCreate.getUserName());
 				if(pList != null && pList.size()>0){
 					for(Project project: pList){
-
+							
 						if(project.getProjectname().equals(projectCreate.getProjectName())){
 							return "0";
 						}

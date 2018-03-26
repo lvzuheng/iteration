@@ -99,9 +99,11 @@ public class UserController {
 			User user = userServices.getUserInfo(httpRequestCode.getUserName(), httpRequestCode.getPassWord());
 			if(user != null){
 				List<Object> projectIds = projectServices.getProjectId(httpRequestCode.getUserName());
-				int productCounts = productServices.getProductCount(projectIds.toArray());
-				UserPersonInfo userPersonInfo = new UserPersonInfo(user.getUsername(), user.getNickname(), projectIds.size(),productCounts,user.getRegisterTime(),user.getAuthority());
-				return JSON.toJSONString(userPersonInfo);
+				if(projectIds!=null && projectIds.size()>0){
+					int productCounts = productServices.getProductCount(projectIds.toArray());
+					UserPersonInfo userPersonInfo = new UserPersonInfo(user.getUsername(), user.getNickname(), projectIds.size(),productCounts,user.getRegisterTime(),user.getAuthority());
+					return JSON.toJSONString(userPersonInfo);
+				}
 			}
 		}
 		return "0";

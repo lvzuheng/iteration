@@ -3,15 +3,15 @@
 		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
 		 "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
-    <session-factory>
-     	<property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/Iteration?useUnicode=true&amp;characterEncoding=UTF8</property>
-      	<property name="hibernate.connection.username">root</property>
-      	<property name="hibernate.connection.password">admin</property>
- <!--      	<property name="hbm2ddl.auto">update</property> -->
-      	<property name="dialect">org.hibernate.dialect.MySQLDialect</property>
-      	<property name="show_sql">true</property>
-      	<mapping  class="com.lzh.iteration.bean.code.User"  />
-      	<mapping class="com.lzh.iteration.bean.code.Project"/>
-      	<mapping  class="com.lzh.iteration.bean.code.Product"  />
-    </session-factory>
+	<session-factory>
+		<property name="hibernate.connection.url">jdbc:mysql://123.207.32.167:3306/iteration?useUnicode=true&amp;characterEncoding=UTF8</property>
+		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.password">longlong</property>
+		<!-- <property name="hbm2ddl.auto">update</property> -->
+		<property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+		<property name="show_sql">true</property>
+		<mapping class="com.lzh.iteration.bean.code.User" />
+		<mapping class="com.lzh.iteration.bean.code.Project" />
+		<mapping class="com.lzh.iteration.bean.code.Product" />
+	</session-factory>
 </hibernate-configuration>
