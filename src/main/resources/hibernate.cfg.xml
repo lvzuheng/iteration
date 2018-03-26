@@ -4,7 +4,7 @@
 		 "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
 	<session-factory>
-		<property name="hibernate.connection.url">jdbc:mysql://123.207.32.167:3306/iteration?useUnicode=true&amp;characterEncoding=UTF8</property>
+		<property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/iteration?useUnicode=true&amp;characterEncoding=UTF8</property>
 		<property name="hibernate.connection.username">root</property>
 		<property name="hibernate.connection.password">longlong</property>
 		<!-- <property name="hbm2ddl.auto">update</property> -->
