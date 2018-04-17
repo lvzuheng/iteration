@@ -12,8 +12,12 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
 
 
 
@@ -60,16 +64,17 @@ public class Configure {
 			config = new Config();
 			Init();
 		}
-			
+
 		return config;
 	}
 
 	public static void entry(){
 
 		try {
-//			Configure.class.getClassLoader().getResource("config.properties").getPath()
+			//			Configure.class.getClassLoader().getResource("config.properties").getPath()
 			System.out.println(Configure.class.getClassLoader().getResource("config.properties").getPath());
-			FileInputStream fileInputStream = new FileInputStream(Configure.class.getClassLoader().getResource("config.properties").getPath());
+			FileInputStream fileInputStream = new FileInputStream("classpath:/resources/");
+			//			FileInputStream fileInputStream = new FileInputStream(Configure.class.getClassLoader().getResource("config.properties").getPath());
 			entry(fileInputStream);
 			fileInputStream.close();
 		} catch (IOException e) {
@@ -94,27 +99,27 @@ public class Configure {
 					field.setAccessible(true);
 					String type = field.getType().getName();
 					System.out.println("field:"+type+","+entry.getValue());
-			        if ("java.lang.String".equals(type)) {
-			        	System.out.println("field:"+field+","+entry.getValue());
-			            field.set(null,(String)entry.getValue());
-			            System.out.println("field:"+field+","+entry.getValue());
-			        } else if ("byte".equals(type) || "java.lang.Byte".equals(type)) {
-			            field.set( null,(Byte) entry.getValue());
-			        } else if ("short".equals(type) || "java.lang.Short".equals(type)) {
-			            field.set(null, Short.valueOf((String) entry.getValue()));
-			        } else if ("int".equals(type) || "java.lang.Integer".equals(type)) {
-			            field.set(null, Integer.valueOf((String) entry.getValue()));
-			        } else if ("long".equals(type) || "java.lang.Long".equals(type)) {
-			            field.set(null, Long.valueOf((String) entry.getValue()));
-			        } else if ("boolean".equals(type) || "java.lang.Boolean".equals(type)) {
-			            field.set(null, Boolean.valueOf((Boolean) entry.getValue()));
-			        } else if ("float".equals(type) || "java.lang.Float".equals(type)) {
-			            field.set(null, Float.valueOf((String) entry.getValue()));
-			        } else if ("double".equals(type) || "java.lang.Double".equals(type)) {
-			            field.set(null, Double.valueOf((String) entry.getValue()));
-			        } else if ("char".equals(type) || "java.lang.Character".equals(type)) {
-			            field.set(null, ((String) entry.getValue()).charAt(0));
-			        }
+					if ("java.lang.String".equals(type)) {
+						System.out.println("field:"+field+","+entry.getValue());
+						field.set(null,(String)entry.getValue());
+						System.out.println("field:"+field+","+entry.getValue());
+					} else if ("byte".equals(type) || "java.lang.Byte".equals(type)) {
+						field.set( null,(Byte) entry.getValue());
+					} else if ("short".equals(type) || "java.lang.Short".equals(type)) {
+						field.set(null, Short.valueOf((String) entry.getValue()));
+					} else if ("int".equals(type) || "java.lang.Integer".equals(type)) {
+						field.set(null, Integer.valueOf((String) entry.getValue()));
+					} else if ("long".equals(type) || "java.lang.Long".equals(type)) {
+						field.set(null, Long.valueOf((String) entry.getValue()));
+					} else if ("boolean".equals(type) || "java.lang.Boolean".equals(type)) {
+						field.set(null, Boolean.valueOf((Boolean) entry.getValue()));
+					} else if ("float".equals(type) || "java.lang.Float".equals(type)) {
+						field.set(null, Float.valueOf((String) entry.getValue()));
+					} else if ("double".equals(type) || "java.lang.Double".equals(type)) {
+						field.set(null, Double.valueOf((String) entry.getValue()));
+					} else if ("char".equals(type) || "java.lang.Character".equals(type)) {
+						field.set(null, ((String) entry.getValue()).charAt(0));
+					}
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -122,23 +127,30 @@ public class Configure {
 			}
 		}
 	} 
-	
+
+	@Component  
+	@Configuration
+	@PropertySource(value={"classpath:config.properties"})
 	public static class Config{
-		private static String apkAddress ;
-		private static String indexPath;
-		public Config(){}
+		@Value("${apkAddress}") 
+		private  String apkAddress ;
+		@Value("${indexPath}") 
+		private  String indexPath;
+		public Config(){
+			System.out.println("扫描了类config");
+		}
 		public String getApkAddress() {
 			return apkAddress;
 		}
 		public void setApkAddress(String apkAddress) {
 			this.apkAddress = apkAddress;
 		}
-		public static String getIndexPath() {
+		public String getIndexPath() {
 			return indexPath;
 		}
-		public static void setIndexPath(String indexPath) {
-			Config.indexPath = indexPath;
+		public void setIndexPath(String indexPath) {
+			this.indexPath = indexPath;
 		}
-		
+
 	}
 }

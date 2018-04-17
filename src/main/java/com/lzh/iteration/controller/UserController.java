@@ -1,13 +1,8 @@
 package com.lzh.iteration.controller;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,24 +13,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.lzh.iteration.bean.code.Product;
-import com.lzh.iteration.bean.code.Project;
 import com.lzh.iteration.bean.code.User;
-import com.lzh.iteration.bean.http.FileInfo;
-import com.lzh.iteration.bean.http.productList;
 import com.lzh.iteration.bean.http.HttpRequestCode;
-import com.lzh.iteration.bean.http.ProductInfo;
 import com.lzh.iteration.bean.http.UserModifyPassword;
 import com.lzh.iteration.bean.http.UserPersonInfo;
 import com.lzh.iteration.bean.http.UserRegister;
 import com.lzh.iteration.service.ProductServices;
 import com.lzh.iteration.service.ProjectServices;
 import com.lzh.iteration.service.UserServices;
-import com.lzh.iteration.utils.ApkUtils;
 import com.lzh.iteration.utils.ConfigCode;
-
-import io.netty.handler.codec.json.JsonObjectDecoder;
+import com.lzh.iteration.utils.Configure;
 
 @RequestMapping(value = "/user")
 @Controller
@@ -44,12 +31,14 @@ public class UserController {
 	@Autowired
 	private UserServices userServices;
 	@Autowired
+	private ProductServices productServices;
+	@Autowired
 	private ProjectServices projectServices;
 	@Autowired
-	private ProductServices productServices;
-	
+	private Configure.Config config;
+
 	public UserController(){
-		System.out.println("mvc扫描");
+		System.out.println("扫描了UserController");
 	}
 
 	@RequestMapping(value = "/username",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
@@ -74,8 +63,8 @@ public class UserController {
 		}
 		return "0";
 	}
-	
-	
+
+
 	@RequestMapping(value = "/info",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String info(HttpServletRequest request,HttpServletResponse response){
@@ -89,7 +78,7 @@ public class UserController {
 		}
 		return "0";
 	}
-	
+
 	@RequestMapping(value = "/person",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String person(HttpServletRequest request,HttpServletResponse response){
@@ -130,8 +119,8 @@ public class UserController {
 		}
 		return "0";
 	}
-	
-	
+
+
 
 	@RequestMapping(value = "/modifyPassword",method = RequestMethod.POST,produces="text/plain;charset=UTF-8")
 	@ResponseBody
@@ -151,14 +140,15 @@ public class UserController {
 		}
 		return "0";
 	}
-	
+
 	@RequestMapping(value = "/test",method = RequestMethod.GET,produces="text/plain;charset=UTF-8")
 	@ResponseBody
 	public String test(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		System.out.println("进来了");
 		try {
-			return JSON.toJSONString(userServices.search(User.class));
+			return config.getApkAddress();
+//			return JSON.toJSONString(userServices.search(User.class));
 		} catch (Exception e) {
 			// TODO: handle exception
 			return e.getMessage();

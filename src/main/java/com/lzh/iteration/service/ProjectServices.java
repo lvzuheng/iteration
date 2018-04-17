@@ -18,8 +18,9 @@ import com.lzh.iteration.bean.http.ProductInfo;
 public class ProjectServices extends SqlServices{
 
 	
-	
-	
+	public Project getProject(int id){
+		return sqlDataManager.search("id",id,Project.class).get(0);
+	}
 	public List<Project> getProject(String username){
 		System.out.println("username:"+username);
 		return sqlDataManager.search("owner",username,Project.class);

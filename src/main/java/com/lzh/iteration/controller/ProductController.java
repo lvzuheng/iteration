@@ -1,19 +1,13 @@
 package com.lzh.iteration.controller;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,14 +19,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.lzh.iteration.bean.code.Product;
 import com.lzh.iteration.bean.code.Project;
-import com.lzh.iteration.bean.http.ProductDelete;
-import com.lzh.iteration.bean.http.IterationInfo;
-import com.lzh.iteration.bean.http.IterationRequest;
 import com.lzh.iteration.bean.http.ProductCreate;
+import com.lzh.iteration.bean.http.ProductDelete;
 import com.lzh.iteration.bean.http.ProductInfo;
 import com.lzh.iteration.bean.http.ProductUpdate;
 import com.lzh.iteration.service.ProductServices;
 import com.lzh.iteration.service.ProjectServices;
+import com.lzh.iteration.service.UserServices;
 import com.lzh.iteration.utils.ApkUtils;
 import com.lzh.iteration.utils.ConfigCode;
 import com.lzh.iteration.utils.Configure;
@@ -43,12 +36,14 @@ import com.lzh.iteration.utils.StreamWriter;
 @Controller
 @RequestMapping(value = "/product")
 public class ProductController {
-	private String address = Configure.getConfig().getApkAddress();
-	@Resource
-	private ProductServices productServices;
-	@Resource
-	private ProjectServices projectServices;
-	
+	@Autowired
+	private Configure.Config config;
+	@Autowired
+	private ProductServices productService;
+	@Autowired
+	private ProjectServices projectService;
+	@Autowired
+	private UserServices userService;
 	/**
 	 * 应用创建
 	 * 可以进行连表查询优化
@@ -59,19 +54,20 @@ public class ProductController {
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		ProductCreate productCreate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProductCreate.class);
 		System.err.println(request.getParameter(ConfigCode.REQUEST));
-		if(productCreate != null && productServices.checkPassword(productCreate.getUserName(), productCreate.getPassWord())){
+		if(productCreate != null && userService.checkPassword(productCreate.getUserName(), productCreate.getPassWord())){
 			if(productCreate.getProductName() == null){
 				return "2";
 			}
 			try {
-				Project project  = projectServices.getProjectByProjectId(productCreate.getProjectId());
+				Project project  = projectService.getProject(productCreate.getProjectId());
 				if(project!=null){
-					List<Product> pList = productServices.getProduct(productCreate.getProjectId(),productCreate.getProductName());
+					List<Product> pList = productService.getProduct(productCreate.getProjectId(),productCreate.getProductName());
 					if(pList == null || pList.size() == 0){
 						String conditionKey = MD5Utils.getMD5(productCreate.getProductName()+new Date().getTime());
+						System.out.println("getProjectId:"+productCreate.getProjectId());
 						Product newProduct = new Product(productCreate.getProductName(),null,productCreate.getProjectId(),conditionKey,productCreate.getAuthority(),
 								null,null,new Date(),null,null,null);
-						productServices.save(newProduct);
+						productService.save(newProduct);
 						return "1";
 					}
 				}
@@ -91,8 +87,8 @@ public class ProductController {
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		System.out.println(request.getParameter(ConfigCode.REQUEST));
 		ProductInfo ProductInfo = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProductInfo.class);
-		if(ProductInfo != null && productServices.checkPassword(ProductInfo.getUserName(), ProductInfo.getPassWord())){
-			List<Product> pList = productServices.getProductByProjectId(ProductInfo.getProjectId());
+		if(ProductInfo != null && userService.checkPassword(ProductInfo.getUserName(), ProductInfo.getPassWord())){
+			List<Product> pList = productService.getProductByProjectId(ProductInfo.getProjectId());
 			if(pList != null){
 				System.out.println(ProductInfo.getProjectId() +","+JSON.toJSONString(pList));
 				return JSON.toJSONString(pList);
@@ -107,15 +103,15 @@ public class ProductController {
 	public String updateProduct(HttpServletRequest request,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		ProductUpdate productUpdate = JSON.parseObject(request.getParameter(ConfigCode.REQUEST),ProductUpdate.class);
-		if(productServices.checkPassword(productUpdate.getUserName(), productUpdate.getPassWord())){
+		if(userService.checkPassword(productUpdate.getUserName(), productUpdate.getPassWord())){
 			System.out.println("fd：上传中");
 			if(productUpdate.getProductName().substring(productUpdate.getProductName().lastIndexOf("."), productUpdate.getProductName().length()).equals(".apk")){
 				try {
-					Product product = productServices.getProduct(productUpdate.getProductId());
+					Product product = productService.getProduct(productUpdate.getProductId());
 					if(product!=null){
 						product.setAuthority(productUpdate.getAuthority());
 						product.setPackname(productUpdate.getProductName());
-						productServices.update(product);
+						productService.save(product);
 						return "1";
 					}
 				} catch (Exception e) {
@@ -142,8 +138,8 @@ public class ProductController {
 		String size  =  multipartHttpServletRequest.getParameter(ConfigCode.UPLOADSIZE);
 		String fileName = multipartHttpServletRequest.getParameter(ConfigCode.UPLOADFILENAME);
 		System.out.println(fileName);
-		if(productServices.checkPassword(userName, passWord)){
-			Product product = productServices.getProduct(Integer.valueOf(productId));
+		if(userService.checkPassword(userName, passWord)){
+			Product product = productService.getProduct(Integer.valueOf(productId));
 			if(product == null){
 				return "233";
 			}
@@ -156,7 +152,7 @@ public class ProductController {
 					System.out.println("fd："+multipartFile.getBytes().length+","+size);
 					return "23333";
 				}
-				File file = new File(address+"/"+product.getProjectId()+"/"+product.getId()+"/"+fileName);
+				File file = new File(config.getApkAddress()+"/"+product.getProjectId()+"/"+product.getId()+"/"+fileName);
 				System.out.println("file:"+","+file.getParentFile().exists());
 				if(!file.getParentFile().exists()){
 					file.getParentFile().mkdirs();
@@ -164,7 +160,7 @@ public class ProductController {
 				if(file.exists()){
 					file.delete();
 				}
-				System.out.println("address:"+address+"/"+projcetId+"/"+multipartHttpServletRequest.getParameter(ConfigCode.UPLOADFILENAME));
+				System.out.println("address:"+config.getApkAddress()+"/"+projcetId+"/"+multipartHttpServletRequest.getParameter(ConfigCode.UPLOADFILENAME));
 				StreamWriter.PrintStreamWrite(multipartFile.getBytes(),file,true);
 				apkUtils = ApkUtils.ApkParse(file.getAbsolutePath());
 				if(apkUtils != null){
@@ -175,7 +171,7 @@ public class ProductController {
 					product.setVersioncode(apkUtils.parseAttrbute("versionCode").get(0));
 					product.setUploadtime(new Date());
 					product.setFileName(fileName);
-					productServices.update(product);
+					productService.save(product);
 					return "1";
 				}
 			} catch (Exception e) {
@@ -199,14 +195,14 @@ public class ProductController {
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		ProductDelete fileDelete = JSONObject.parseObject(request.getParameter("request"), ProductDelete.class);
 		System.err.println("delete:"+request.getParameter("request"));
-		boolean check = productServices.checkPassword(fileDelete.getUserName(), fileDelete.getPassWord());
+		boolean check = userService.checkPassword(fileDelete.getUserName(), fileDelete.getPassWord());
 		File[] files ;
 		if(check){
-			List<Product> products = productServices.getProduct(fileDelete.getProductId());
+			List<Product> products = productService.getProductByProjectId(fileDelete.getProductId());
 			System.err.println("delete:"+products.size());
 			for(Product product :products){
-				files = FileUtils.findFiles(address+"/"+product.getProjectId());
-				System.err.println("delete:"+product.getProductname()+","+address+"/"+product.getProjectId()+","+files);
+				files = FileUtils.findFiles(config.getApkAddress()+"/"+product.getProjectId());
+				System.err.println("delete:"+product.getProductname()+","+config.getApkAddress()+"/"+product.getProjectId()+","+files);
 				if(files!=null){
 					for(File file:files){
 						System.err.println("delete:"+file.getName());
@@ -216,7 +212,7 @@ public class ProductController {
 						}
 					}
 				}
-				productServices.remove(product);
+				productService.remove(product);
 			}
 
 			return "1";

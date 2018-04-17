@@ -7,10 +7,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,7 +21,7 @@ import com.lzh.iteration.bean.code.Product;
 import com.lzh.iteration.bean.http.IterationInfo;
 import com.lzh.iteration.bean.http.IterationRequest;
 import com.lzh.iteration.service.ProductServices;
-import com.lzh.iteration.service.ProjectServices;
+import com.lzh.iteration.service.UserServices;
 import com.lzh.iteration.utils.Configure;
 
 
@@ -29,9 +29,13 @@ import com.lzh.iteration.utils.Configure;
 @RequestMapping(value = "/iteration")
 public class IterationController {
 	
-	private String address = Configure.getConfig().getApkAddress();
-	@Resource
-	private ProductServices productServices;
+//	private String address = Configure.getConfig().getApkAddress();
+	@Autowired
+	private Configure.Config config;
+	@Autowired
+	private ProductServices productService;
+	@Autowired
+	private UserServices userService;
 	
 	/**迭代信息查询 */
 	@RequestMapping("/iterationInfo")
@@ -42,7 +46,7 @@ public class IterationController {
 		System.out.println("进来了");
 		System.out.println(request.getParameter("request")+","+(iterationRequest!=null));
 		if(iterationRequest!=null){
-			Product product = productServices.getProduct(iterationRequest.getConditionKey());
+			Product product = productService.getProduct(iterationRequest.getConditionKey());
 			IterationInfo iterationInfo;
 			if(product != null){
 				String url ="http://"+request.getLocalAddr()+":"+request.getLocalPort()+request.getContextPath()+"/file/iterationDownload";
@@ -64,8 +68,8 @@ public class IterationController {
 		System.out.println("来访者："+request.getRemoteAddr());
 		IterationRequest iterationRequest = JSONObject.parseObject(request.getParameter("request"), IterationRequest.class);
 		if(iterationRequest!= null){
-			Product product = productServices.getProduct(iterationRequest.getConditionKey());
-			File file = new File(address+"/"+product.getProjectId()+"/"+product.getProductname());
+			Product product = productService.getProduct(iterationRequest.getConditionKey());
+			File file = new File(config.getApkAddress()+"/"+product.getProjectId()+"/"+product.getProductname());
 			String filenames = file.getName();
 			InputStream inputStream;
 			try {

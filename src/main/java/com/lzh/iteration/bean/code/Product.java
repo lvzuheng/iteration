@@ -45,7 +45,7 @@ public class Product {
 	private String versionname;
 	@Column(name = "version_code")
 	private String versioncode;
-	@Column(name = "projectId")
+	@Column(name = "project_Id")
 	private int projectId;
 	@Column(name = "filename")
 	private String fileName;
