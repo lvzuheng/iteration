@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.lzh.iteration.bean.code.Product;
+import com.lzh.iteration.bean.code.Project;
 import com.lzh.iteration.bean.code.User;
 
 @Repository
@@ -32,7 +33,7 @@ public class UserServices extends SqlServices{
 	}
 	
 	public int getProjectCount(String username){
-		return sqlDataManager.searchCount("owner",username,User.class);
+		return sqlDataManager.searchCount("owner",username,Project.class);
 	}
 	public int getProductCount(Integer[] projectId){
 		return sqlDataManager.searchCountbyList("projectId",projectId,Product.class);

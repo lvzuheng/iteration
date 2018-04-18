@@ -17,7 +17,10 @@
 	</context:component-scan>
 	<mvc:annotation-driven />
 	<!-- <mvc:resources location="/resources/" mapping="/resources/**" /> -->
-
+    <!-- 启动SpringMVC的注解功能，完成请求和注解POJO的映射 -->  
+    <bean  
+        class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">  
+    </bean>  
 	<bean id="internalResourceViewResolver"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/" />

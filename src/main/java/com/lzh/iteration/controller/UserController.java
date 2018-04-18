@@ -147,8 +147,8 @@ public class UserController {
 		response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8020");
 		System.out.println("进来了");
 		try {
-			return config.getApkAddress();
-//			return JSON.toJSONString(userServices.search(User.class));
+//			return config.getApkAddress();
+			return JSON.toJSONString(userServices.getUserInfo("zdm","123456"));
 		} catch (Exception e) {
 			// TODO: handle exception
 			return e.getMessage();

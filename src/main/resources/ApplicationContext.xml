@@ -55,7 +55,7 @@
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
 				<prop key="hibernate.show_sql">true</prop>
 				<prop key="hibernate.format_sql">true</prop>
-				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
 				<prop key="hibernate.connection.autocommit">true</prop>
 				<prop key="current_session_context_class">thread</prop>
 			</props>
@@ -63,6 +63,7 @@
 		<!-- <beans:property name="annotatedClasses"> <beans:list> <beans:value>zzx.imooc.modle.Animal</beans:value> 
 			</beans:list> </beans:property> -->
 		<property name="configLocation" value="classpath:hibernate.cfg.xml"></property>
+		<property name="packagesToScan" value="com.lzh.iteration.bean"></property>
 	</bean>
 
 	<!-- 配置声明式事务管理 -->
